@@ -1,0 +1,10 @@
+ahoyapi: v2
+commands:
+  index:
+    cmd: |
+      docker run --rm \
+        -v ${PWD}:/work \
+        -w /work \
+        -u 1000:1000 \
+        quay.io/helmpack/chart-releaser:v1.6.1 \
+        index --owner teanoon --git-repo git@github.com:teanoon/app-helm-chart.git
