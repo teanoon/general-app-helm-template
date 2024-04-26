@@ -11,10 +11,11 @@
 {{- $imagePullPolicy := default .defaultValues.image.pullPolicy (.image).pullPolicy }}
 {{- $securityContext := default .defaultValues.securityContext .securityContext }}
 {{- $containerSpecs := dict "resources" .resources "securityContext" $securityContext "livenessProbe" .livenessProbe }}
-{{- $sidecarVolumes := list }}
+
+{{- $sidecarVolumes := dict }}
 {{- range $initContainer := .initContainers }}
 {{- range $volume := $initContainer.volumeMounts }}
-{{- $volume }}
+{{- $sidecarVolumes = set $sidecarVolumes $volume.name $volume.mountPath }}
 {{- end }}
 {{- end }}
 ---
@@ -65,24 +66,24 @@ spec:
             {{- toYaml $value | nindent 12 }}
           {{- end }}
           {{- end }}
-        {{- if or .configuration .volumes | or $sidecarVolumes }}
+          {{- if or .configuration .volumes | or $sidecarVolumes }}
           volumeMounts:
-          {{- if .configuration }}
-          - name: config
-            mountPath: /etc/config
-          {{- end }}
-          {{- if .volumes }}
-          {{- range $volume := .volumes }}
-          - name: {{ $volume.name }}
-            mountPath: {{ $volume.mountPath }}
-          {{- end }}
-          {{- end }}
-          {{- if $sidecarVolumes }}
-          {{- range $volume := $sidecarVolumes }}
-          - name: {{ $volume.name }}
-            mountPath: {{ $volume.mountPath }}
-          {{- end }}
-          {{- end }}
+            {{- if .configuration }}
+            - name: config
+              mountPath: /etc/config
+            {{- end }}
+            {{- if .volumes }}
+            {{- range $volume := .volumes }}
+            - name: {{ $volume.name }}
+              mountPath: {{ $volume.mountPath }}
+            {{- end }}
+            {{- end }}
+            {{- if $sidecarVolumes }}
+            {{- range $name, $mountPath := $sidecarVolumes }}
+            - name: {{ $name }}
+              mountPath: {{ $mountPath }}
+            {{- end }}
+            {{- end }}
       volumes:
         {{- if .configuration }}
         - name: config
@@ -95,14 +96,28 @@ spec:
             claimName: {{ include "project.name" $ }}-{{ $name }}-{{ $volume.name }}-pv-claim
         {{- end }}
         {{- if $sidecarVolumes }}
-        {{- range $volume := $sidecarVolumes }}
-        - name: {{ $volume.name }}
+        {{- range $name, $mountPath := $sidecarVolumes }}
+        - name: {{ $name }}
           emptyDir: {}
         {{- end }}
         {{- end }}
         {{- end }}
       {{- if .initContainers }}
       initContainers:
-        {{- tpl (toYaml .initContainers) . | nindent 8 }}
+        {{- range $initContainer := .initContainers }}
+        - name: {{ $initContainer.name }}
+          image: {{ $initContainer.image }}
+          {{- if $initContainer.command }}
+          command:
+            {{- $initContainer.command | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if $initContainer.volumeMounts }}
+          volumeMounts:
+            {{- range $volume := $initContainer.volumeMounts }}
+            - name: {{ $volume.name }}
+              mountPath: {{ $volume.mountPath }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
       {{- end }}
 {{- end }}
