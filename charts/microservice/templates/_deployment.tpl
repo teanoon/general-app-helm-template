@@ -11,6 +11,12 @@
 {{- $imagePullPolicy := default .defaultValues.image.pullPolicy (.image).pullPolicy }}
 {{- $securityContext := default .defaultValues.securityContext .securityContext }}
 {{- $containerSpecs := dict "resources" .resources "securityContext" $securityContext "livenessProbe" .livenessProbe }}
+{{- $sidecarVolumes := list }}
+{{- range $initContainer := .initContainers }}
+{{- range $volume := $initContainer.volumeMounts }}
+{{- $volume }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -59,7 +65,7 @@ spec:
             {{- toYaml $value | nindent 12 }}
           {{- end }}
           {{- end }}
-        {{- if or .configuration .volumes }}
+        {{- if or .configuration .volumes | or $sidecarVolumes }}
           volumeMounts:
           {{- if .configuration }}
           - name: config
@@ -67,6 +73,12 @@ spec:
           {{- end }}
           {{- if .volumes }}
           {{- range $volume := .volumes }}
+          - name: {{ $volume.name }}
+            mountPath: {{ $volume.mountPath }}
+          {{- end }}
+          {{- end }}
+          {{- if $sidecarVolumes }}
+          {{- range $volume := $sidecarVolumes }}
           - name: {{ $volume.name }}
             mountPath: {{ $volume.mountPath }}
           {{- end }}
@@ -81,6 +93,12 @@ spec:
         - name: {{ $volume.name }}
           persistentVolumeClaim:
             claimName: {{ include "project.name" $ }}-{{ $name }}-{{ $volume.name }}-pv-claim
+        {{- end }}
+        {{- if $sidecarVolumes }}
+        {{- range $volume := $sidecarVolumes }}
+        - name: {{ $volume.name }}
+          emptyDir: {}
+        {{- end }}
         {{- end }}
         {{- end }}
       {{- if .initContainers }}

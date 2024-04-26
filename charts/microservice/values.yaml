@@ -36,7 +36,6 @@
   #   securityContext: the container security context
   #   livenessprobe: the container liveliness probe
   #   configuration: the configuration file
-  #   files:
   #   volumes: the persistent volumes
   #   initContainers: the init containers
   #   useDefault: whether to use the default configuration
