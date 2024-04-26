@@ -104,20 +104,6 @@ spec:
         {{- end }}
       {{- if .initContainers }}
       initContainers:
-        {{- range $initContainer := .initContainers }}
-        - name: {{ $initContainer.name }}
-          image: {{ $initContainer.image }}
-          {{- if $initContainer.command }}
-          command:
-            {{- $initContainer.command | toYaml | nindent 12 }}
-          {{- end }}
-          {{- if $initContainer.volumeMounts }}
-          volumeMounts:
-            {{- range $volume := $initContainer.volumeMounts }}
-            - name: {{ $volume.name }}
-              mountPath: {{ $volume.mountPath }}
-            {{- end }}
-          {{- end }}
-        {{- end }}
+        {{- tpl (toYaml .initContainers) . | nindent 8 }}
       {{- end }}
 {{- end }}
