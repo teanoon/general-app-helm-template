@@ -50,6 +50,12 @@ spec:
         - name: {{ .name }}
           image: {{ $imageRepository }}:{{ $imageTag }}
           imagePullPolicy: {{ $imagePullPolicy }}
+          imagePullSecrets:
+            {{- if $imagePullSecrets }}
+            {{- range $imagePullSecret := $imagePullSecrets }}
+            - name: {{ $imagePullSecret }}
+            {{- end }}
+            {{- end }}
           {{- if .command }}
           command:
             {{- .command | toYaml | nindent 12 }}
