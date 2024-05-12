@@ -13,8 +13,8 @@
 {{- $containerSpecs := dict "resources" .resources "securityContext" $securityContext "livenessProbe" .livenessProbe }}
 
 {{- $sidecarVolumes := dict }}
-{{- range $initContainer := .initContainers }}
-{{- range $volume := $initContainer.volumeMounts }}
+{{- range $container := .initContainers }}
+{{- range $volume := $container.volumeMounts }}
 {{- $sidecarVolumes = set $sidecarVolumes $volume.name $volume.mountPath }}
 {{- end }}
 {{- end }}
@@ -110,6 +110,30 @@ spec:
         {{- end }}
       {{- if .initContainers }}
       initContainers:
-        {{- tpl (toYaml .initContainers) . | nindent 8 }}
+        {{- range $container := .initContainers }}
+        - name: {{ $container.name }}
+          image: {{ $container.image }}
+          imagePullPolicy: {{ $container.imagePullPolicy }}
+          {{- if $container.command }}
+          command:
+            {{- $container.command | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if $container.env }}
+          env:
+            {{- $container.env | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if or $.configuration $container.volumeMounts }}
+          volumeMounts:
+            {{- if $.configuration }}
+            - name: config
+              configMap:
+                name: {{ include "project.name" $ }}-{{ $.name }}-config
+            {{- end }}
+            {{- range $volume := $container.volumeMounts }}
+            - name: {{ $volume.name }}
+              mountPath: {{ $volume.mountPath }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
       {{- end }}
 {{- end }}
