@@ -126,8 +126,7 @@ spec:
           volumeMounts:
             {{- if $.configuration }}
             - name: config
-              configMap:
-                name: {{ include "project.name" $ }}-{{ $.name }}-config
+              mountPath: /etc/config
             {{- end }}
             {{- range $volume := $container.volumeMounts }}
             - name: {{ $volume.name }}
