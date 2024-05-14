@@ -4,7 +4,7 @@
 {{- $nodeSelector := default .defaultValues.schedulingRules.nodeSelector (.schedulingRules).nodeSelector }}
 {{- $affinity := default .defaultValues.schedulingRules.affinity (.schedulingRules).affinity }}
 {{- $tolerations := default .defaultValues.schedulingRules.tolerations (.schedulingRules).tolerations }}
-{{- $specs := dict "imagePullSecrets" $imagePullSecrets "nodeSelector" $nodeSelector "affinity" $affinity "tolerations" $tolerations }}
+{{- $specs := dict "nodeSelector" $nodeSelector "affinity" $affinity "tolerations" $tolerations }}
 
 {{- $imageRepository := default .defaultValues.image.repository (.image).repository }}
 {{- $imageTag := (.image).tag | default (printf "%s-%s" (default .Chart.AppVersion .defaultValues.image.tag) (replace "-" "" .name)) }}
@@ -46,16 +46,16 @@ spec:
         {{- toYaml $value | nindent 8 }}
       {{- end }}
       {{- end }}
+      {{- if $imagePullSecrets }}
+      imagePullSecrets:
+        {{- range $imagePullSecret := $imagePullSecrets }}
+        - name: {{ $imagePullSecret }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: {{ .name }}
           image: {{ $imageRepository }}:{{ $imageTag }}
           imagePullPolicy: {{ $imagePullPolicy }}
-          imagePullSecrets:
-            {{- if $imagePullSecrets }}
-            {{- range $imagePullSecret := $imagePullSecrets }}
-            - name: {{ $imagePullSecret }}
-            {{- end }}
-            {{- end }}
           {{- if .command }}
           command:
             {{- .command | toYaml | nindent 12 }}
