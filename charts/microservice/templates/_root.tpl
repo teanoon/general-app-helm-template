@@ -10,8 +10,8 @@
     {{- $config := set . "defaultValues" $.Values.default }}
 
     {{- if eq false $config.enabled | not -}}
-        {{- include "project.deployment" $config -}}
         {{- include "project.service" $config -}}
+        {{- include "project.deployment" $config -}}
         {{- include "project.ingress" $config -}}
         {{- include "project.configmap" $config -}}
         {{- include "project.volumes" $config -}}

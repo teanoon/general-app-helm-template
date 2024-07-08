@@ -14,6 +14,9 @@ metadata:
   {{- end }}
 spec:
   type: {{ $service.type | default "ClusterIP" }}
+  {{- if .clusterIP }}
+  clusterIP: {{ .clusterIP }}
+  {{- end }}
   ports:
     {{- if .ports }}
     {{- range $port := .ports }}

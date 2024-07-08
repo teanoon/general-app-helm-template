@@ -20,15 +20,19 @@
 {{- end }}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ default "Deployment" .kind }}
 metadata:
   name: {{ include "project.name" . }}-{{ .name }}
   labels:
     {{- include "project.labels" . | nindent 4 }}
 spec:
+  {{- if eq .kind "StatefulSet" }}
+  serviceName: {{ include "project.name" . }}-{{ .name }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "project.selectorLabels" . | nindent 6 }}
+  replicas: {{ default 1 .replicas }}
   template:
     metadata:
       labels:
