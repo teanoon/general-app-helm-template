@@ -76,7 +76,7 @@ spec:
             {{- toYaml $value | nindent 12 }}
           {{- end }}
           {{- end }}
-          {{- if or .configuration .volumes | or $sidecarVolumes }}
+          {{- if or .configuration .volumes | or $sidecarVolumes | or .sharedVolumes }}
           volumeMounts:
             {{- if .configuration }}
             - name: config
@@ -84,6 +84,12 @@ spec:
             {{- end }}
             {{- if .volumes }}
             {{- range $volume := .volumes }}
+            - name: {{ $volume.name }}
+              mountPath: {{ $volume.mountPath }}
+            {{- end }}
+            {{- end }}
+            {{- if .sharedVolumes }}
+            {{- range $volume := .sharedVolumes }}
             - name: {{ $volume.name }}
               mountPath: {{ $volume.mountPath }}
             {{- end }}
@@ -104,6 +110,11 @@ spec:
         - name: {{ $volume.name }}
           persistentVolumeClaim:
             claimName: {{ include "project.name" $ }}-{{ $name }}-{{ $volume.name }}-pv-claim
+        {{- end }}
+        {{- range $volume := .sharedVolumes }}
+        - name: {{ $volume.name }}
+          persistentVolumeClaim:
+            claimName: {{ $volume.claim }}
         {{- end }}
         {{- if $sidecarVolumes }}
         {{- range $name, $mountPath := $sidecarVolumes }}
