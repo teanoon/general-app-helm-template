@@ -14,6 +14,9 @@ metadata:
   {{- end }}
 spec:
   type: {{ $service.type | default "ClusterIP" }}
+  {{- if $service.loadBalancerIP }}
+  loadBalancerIP: {{ $service.loadBalancerIP }}
+  {{- end }}
   {{- if .clusterIP }}
   clusterIP: {{ .clusterIP }}
   {{- end }}
