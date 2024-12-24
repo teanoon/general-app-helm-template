@@ -17,6 +17,12 @@ spec:
   {{- if $service.loadBalancerIP }}
   loadBalancerIP: {{ $service.loadBalancerIP }}
   {{- end }}
+  {{- if $service.externalIPs }}
+  externalIPs:
+    {{- range $ip := $service.externalIPs }}
+    - {{ $ip }}
+    {{- end }}
+  {{- end }}
   {{- if .clusterIP }}
   clusterIP: {{ .clusterIP }}
   {{- end }}
