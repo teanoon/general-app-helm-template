@@ -23,8 +23,8 @@ spec:
     - {{ $ip }}
     {{- end }}
   {{- end }}
-  {{- if .clusterIP }}
-  clusterIP: {{ .clusterIP }}
+  {{- if $service.clusterIP }}
+  clusterIP: {{ $service.clusterIP }}
   {{- end }}
   ports:
     {{- if .ports }}
