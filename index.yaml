@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   microservice:
   - apiVersion: v2
+    created: "2024-12-25T10:15:35.505544075Z"
+    description: a common chart library to deploy a common microservice application
+    digest: cf42ac04029500e7b4854d44ed9436a49c4340788455b15ce871eecb3907b497
+    name: microservice
+    type: library
+    urls:
+    - https://github.com/teanoon/helm-charts/releases/download/microservice-0.7.1/microservice-0.7.1.tgz
+    version: 0.7.1
+  - apiVersion: v2
     created: "2024-12-24T14:21:01.993746397Z"
     description: a common chart library to deploy a common microservice application
     digest: 8b6fb368d20e9e8a00a435742032a9903edfefc5f29a637e4c63230ec16d1014
@@ -110,4 +119,4 @@ entries:
     urls:
     - https://github.com/teanoon/helm-charts/releases/download/microservice-0.1.0/microservice-0.1.0.tgz
     version: 0.1.0
-generated: "2024-12-24T14:21:01.993796181Z"
+generated: "2024-12-25T10:15:35.505642427Z"
